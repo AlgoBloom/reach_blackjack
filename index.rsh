@@ -1,18 +1,3 @@
-    ///// GAME STEPS /////////////////////////////////////////////////////
-    // [0] game initializes
-    // [1] DEALER sends wager
-    // [2] PLAYER accepts the wager
-    // WHILE LOOP
-        // [3] DEALER sends commitment
-        // [4] PLAYER sends hand
-        // [5] DEALER reveals hand
-        // [6] PLAYER computes outcome
-        // [7] outcome of game is computed
-            // If it's draw, return to step 3; otherwise, the game ends
-        // [8] winner is paid
-        // [9] outcome is shown to both players
-        /////////////////////////////////////////////////////////////////
-
 'reach 0.1';
 
 const outcomeLoop = ['Draw.', 'Lose, opponent has Blackjack.', 'Win with a Blackjack.', 'You went over. You lose.', 'Opponent went over. You win.', 'You win.', 'You lose.'];
@@ -125,9 +110,6 @@ export const main = Reach.App(() => {
     }
     commit();
 
-
-    // const outcomeLoop = [0'Draw.', 1'Lose, opponent has Blackjack.', 2'Win with a Blackjack.', 3'You went over. You lose.', 4'Opponent went over. You win.', 5'You win.', 6'You lose.'];
-
     // [7] dealer computes and shares number of stakes won for dealer and player
     Dealer.only(() => {
         const [forDealer, forPlayer] =
@@ -161,23 +143,27 @@ export const main = Reach.App(() => {
     // this essentially destructures the loopOutcome to tell us which message to display for each participant 
     Dealer.only(() => {
         const [messageDealer, messagePlayer] =
-            loopOutcome == 00 ? [1, 1] :
-            loopOutcome == 21 ? [2, 0] :
-            loopOutcome == 12 ? [0, 2] :
-            loopOutcome == 43 ? [2, 0] :
-            loopOutcome == 34 ? [0, 2] :
-            loopOutcome == 65 ? [0, 2] :
-            loopOutcome == 56 ? [2, 0] :
-            [1, 1];
+            loopOutcome == 00 ? [0, 0] :
+            loopOutcome == 21 ? [2, 1] :
+            loopOutcome == 12 ? [1, 2] :
+            loopOutcome == 43 ? [4, 3] :
+            loopOutcome == 34 ? [3, 4] :
+            loopOutcome == 65 ? [6, 5] :
+            loopOutcome == 56 ? [5, 6] :
+            [0, 0];
     });
+    // dealer publishes the messages each participant should see
+    Dealer.publish(messageDealer, messagePlayer);
+    // ending the consensus step
+    commit();
 
     // [9] both players are shown the outcome
     Player.only(() => {
-        interact.seeOutcome(loopOutcome[0]);
+        interact.seeOutcome(messagePlayer);
     });
 
     Dealer.only(() => {
-        interact.seeOutcome(loopOutcome[1]);
+        interact.seeOutcome(messageDealer);
     });
 
 });
