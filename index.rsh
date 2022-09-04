@@ -71,9 +71,11 @@ export const main = Reach.App(() => {
 
     // WHILE LOOP        
 
-    var loopOutcome = [0, 0];
+    var loopOutcome = 00;
+    // invariant expression must be true before and after
+    // every execution of the block
     invariant(balance() == 2 * wager && isOutcome(loopOutcome));
-    while (loopOutcome == [0, 0]) {
+    while (loopOutcome == 00) {
         commit();
         // [3] dealer sends commitment
         Dealer.only(() => {
@@ -106,93 +108,68 @@ export const main = Reach.App(() => {
 
         // [6] player computes outcome
         Player.only(() => {
-            const [outcomeDealer, outcomePlayer] =
-                (handDealer == handPlayer) ? [0, 0] :
-                    (handDealer == 21) ? [2, 1] :
-                        (handPlayer == 21) ? [1, 2] :
-                            (handPlayer > 21) ? [4, 3] :
-                                (handDealer > 21) ? [3, 4] :
-                                    (handPlayer > handDealer) ? [6, 5] :
-                                        [5, 6];
-        });
-
-        // [7] outcome of game is computed
-        Player.publish(outcomeDealer, outcomePlayer);
-        // winner is computed
-        // const [outcomeDealer, outcomePlayer] =
-        //     (handDealer == handPlayer) ? [0, 0] :
-        //     (handDealer == 21) ? [2, 1] :
-        //     (handPlayer == 21) ? [1, 2] :
-        //     (handPlayer > 21) ? [4, 3] :
-        //     (handDealer > 21) ? [3, 4] :
-        //     (handPlayer > handDealer) ? [6, 5] :
-        //     [5, 6];
-
-        // Player.only(() => {
-        //     const forPlayer =
-        //     outcomePlayer == 0 ? 1 : 
-        //     outcomePlayer == 1 ? 0 :
-        //     outcomePlayer == 2 ? 2 :
-        //     outcomePlayer == 3 ? 0 :
-        //     outcomePlayer == 4 ? 2 :
-        //     outcomePlayer == 5 ? 2 :
-        //     outcomePlayer == 6 ? 0 :
-        //     1 ;   
-        // });
-        // Player.publish(forPlayer);
-        // commit();
-
-        // Dealer.only(() => {
-        //     const forDealer = 
-        //     outcomeDealer == 0 ? 1 : 
-        //     outcomeDealer == 1 ? 0 :
-        //     outcomeDealer == 2 ? 2 :
-        //     outcomeDealer == 3 ? 0 :
-        //     outcomeDealer == 4 ? 2 :
-        //     outcomeDealer == 5 ? 2 :
-        //     outcomeDealer == 6 ? 0 :
-        //     1 ;   
-        // });
-        // Dealer.publish(forDealer);
-        // loopOutcomePlayer = outcomePlayer;
+            const outcome =          // first digit is outcomeDealer, second is outcomePlayer
+                (handDealer == handPlayer) ? 00 :
+                (handDealer == 21) ? 21 :
+                (handPlayer == 21) ? 12 :
+                (handPlayer > 21) ? 43 :
+                (handDealer > 21) ? 34 :
+                (handPlayer > handDealer) ? 65 :
+                56;
+        })
+        Player.publish(outcome);
+        
         // this is for the while loop
-        loopOutcome = [outcomeDealer, outcomePlayer];
+        loopOutcome = outcome;
         continue;
     }
     commit();
 
-    Player.only(() => {
-        const forPlayer =
-            loopOutcome[1] == 0 ? 1 :
-                loopOutcome[1] == 1 ? 0 :
-                    loopOutcome[1] == 2 ? 2 :
-                        loopOutcome[1] == 3 ? 0 :
-                            loopOutcome[1] == 4 ? 2 :
-                                loopOutcome[1] == 5 ? 2 :
-                                    loopOutcome[1] == 6 ? 0 :
-                                        1;
-    });
-    Player.publish(forPlayer);
-    commit();
 
+    // const outcomeLoop = [0'Draw.', 1'Lose, opponent has Blackjack.', 2'Win with a Blackjack.', 3'You went over. You lose.', 4'Opponent went over. You win.', 5'You win.', 6'You lose.'];
+
+    // [7] dealer computes and shares number of stakes won for dealer and player
     Dealer.only(() => {
-        const forDealer =
-            loopOutcome[0] == 0 ? 1 :
-                loopOutcome[0] == 1 ? 0 :
-                    loopOutcome[0] == 2 ? 2 :
-                        loopOutcome[0] == 3 ? 0 :
-                            loopOutcome[0] == 4 ? 2 :
-                                loopOutcome[0] == 5 ? 2 :
-                                    loopOutcome[0] == 6 ? 0 :
-                                        1;
+        const [forDealer, forPlayer] =
+            // draw, one share returned to each participant
+            loopOutcome == 00 ? [1, 1] :
+            // dealer wins with blackjack, two shares paid to dealer
+            loopOutcome == 21 ? [2, 0] :
+            // player wins with blackjack, two shares paid to player 
+            loopOutcome == 12 ? [0, 2] :
+            // player went over, two shars paid to dealer
+            loopOutcome == 43 ? [2, 0] :
+            // dealer went over, two shares paid to player
+            loopOutcome == 34 ? [0, 2] :
+            // player wins, two shares sent to player
+            loopOutcome == 65 ? [0, 2] :
+            // dealer wins, two shares sent to dealer
+            loopOutcome == 56 ? [2, 0] :
+            // otherwise send one share back to each participant
+            [1, 1];
     });
-    Dealer.publish(forDealer);
+    // dealer publishes the shares alloted for dealer and player
+    Dealer.publish(forDealer, forPlayer);
 
-    // [8] winner is paid
+    // [8] stakes are paid
     transfer(forPlayer * wager).to(Player);
     transfer(forDealer * wager).to(Dealer);
 
     commit();
+
+    // player determines which message each particpant should be shown
+    // this essentially destructures the loopOutcome to tell us which message to display for each participant 
+    Dealer.only(() => {
+        const [messageDealer, messagePlayer] =
+            loopOutcome == 00 ? [1, 1] :
+            loopOutcome == 21 ? [2, 0] :
+            loopOutcome == 12 ? [0, 2] :
+            loopOutcome == 43 ? [2, 0] :
+            loopOutcome == 34 ? [0, 2] :
+            loopOutcome == 65 ? [0, 2] :
+            loopOutcome == 56 ? [2, 0] :
+            [1, 1];
+    });
 
     // [9] both players are shown the outcome
     Player.only(() => {
