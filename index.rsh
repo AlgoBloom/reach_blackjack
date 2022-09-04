@@ -1,3 +1,18 @@
+    ///// GAME STEPS /////////////////////////////////////////////////////
+    // [0] game initializes
+    // [1] DEALER sends wager
+    // [2] PLAYER accepts the wager
+    // WHILE LOOP
+        // [3] DEALER sends commitment
+        // [4] PLAYER sends hand
+        // [5] DEALER reveals hand
+        // [6] PLAYER computes outcome
+        // [7] outcome of game is computed
+            // If it's draw, return to step 3; otherwise, the game ends
+        // [8] winner is paid
+        // [9] outcome is shown to both players
+        /////////////////////////////////////////////////////////////////
+
 'reach 0.1';
 
 const outcomeLoop = ['Draw.', 'Lose, opponent has Blackjack.', 'Win with a Blackjack.', 'You went over. You lose.', 'Opponent went over. You win.', 'You win.', 'You lose.'];
@@ -28,7 +43,7 @@ export const main = Reach.App(() => {
         acceptWager: Fun([UInt], Null),
     });
 
-    // the dapp initializes
+    // [0]the dapp initializes
     init();
 
     // this function informs both players of a timeout
@@ -37,14 +52,6 @@ export const main = Reach.App(() => {
             interact.informTimeout();
         });
     };
-
-    // [1] DEALER sends wager
-    // [2] PLAYER accepts the wager
-    // WHILE LOOP
-    // [3] DEALER sends commitment
-        // [4] PLAYER sends hand
-        // 5 DEALER reveals hand
-        // 6 If it's draw, return to step 3; otherwise, the game ends
 
     // [1] dealer sends wager to player
     Dealer.only(() => {
@@ -78,7 +85,7 @@ export const main = Reach.App(() => {
             .timeout(relativeTime(deadline), () => closeTo(Player, informTimeout));
         commit();
 
-        // PLAYER SENDS HAND
+        // [4] player sends hand
         unknowable(Player, Dealer(_handDealer, _saltDealer));
         Player.only(() => {
             const handPlayer = declassify(interact.drawCards());
@@ -87,7 +94,7 @@ export const main = Reach.App(() => {
             .timeout(relativeTime(deadline), () => closeTo(Dealer, informTimeout));
         commit();
 
-        // DEALER REVEALS HAND
+        // [5] dealer reveals hand
         Dealer.only(() => {
             const saltDealer = declassify(_saltDealer);
             const handDealer = declassify(_handDealer);
@@ -97,7 +104,7 @@ export const main = Reach.App(() => {
         checkCommitment(commitDealer, saltDealer, handDealer);
         commit();
 
-        // PLAYER COMPUTES OUTCOME
+        // [6] player computes outcome
         Player.only(() => {
             const [outcomeDealer, outcomePlayer] =
                 (handDealer == handPlayer) ? [0, 0] :
@@ -108,6 +115,8 @@ export const main = Reach.App(() => {
                                     (handPlayer > handDealer) ? [6, 5] :
                                         [5, 6];
         });
+
+        // [7] outcome of game is computed
         Player.publish(outcomeDealer, outcomePlayer);
         // winner is computed
         // const [outcomeDealer, outcomePlayer] =
@@ -179,11 +188,13 @@ export const main = Reach.App(() => {
     });
     Dealer.publish(forDealer);
 
+    // [8] winner is paid
     transfer(forPlayer * wager).to(Player);
     transfer(forDealer * wager).to(Dealer);
 
     commit();
 
+    // [9] both players are shown the outcome
     Player.only(() => {
         interact.seeOutcome(loopOutcome[0]);
     });
