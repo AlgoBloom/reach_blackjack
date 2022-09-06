@@ -1,8 +1,7 @@
 // theorems failing
 // balance not 0 at application exit ./index.rsh:138:35:application
 // balance not sufficient for trandefer ./index.rsh:139:35:application
-// while invariant after loop ./index.rsh:63:15:invariant
-// while invariant after loop ./index.rsh:63:15:invariant
+// while invariant after loop ./index.rsh:69:15:invariant
 
 'reach 0.1';
 
@@ -110,13 +109,16 @@ export const main = Reach.App(() => {
                 56;
         })
         Player.publish(outcome);
-        
+
+        // requiring that the balance is still 2 wagers
+        assert(balance() == 2 * wager);
+
         // this is for the while loop
         loopOutcome = outcome;
         continue;
     }
     commit();
-
+    
     // [7] dealer computes and shares number of stakes won for dealer and player
     Dealer.only(() => {
         const [forDealer, forPlayer] =
