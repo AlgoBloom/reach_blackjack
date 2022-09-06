@@ -1,7 +1,15 @@
+// theorems failing
+// balance not 0 at application exit ./index.rsh:138:35:application
+// balance not sufficient for trandefer ./index.rsh:139:35:application
+// while invariant after loop ./index.rsh:63:15:invariant
+// while invariant after loop ./index.rsh:63:15:invariant
+
 'reach 0.1';
 
 const outcomeLoop = ['Draw.', 'Lose, opponent has Blackjack.', 'Win with a Blackjack.', 'You went over. You lose.', 'Opponent went over. You win.', 'You win.', 'You lose.'];
 const [isOutcome, DRAW, LOS_OPPONENT_HAS_BLACKJACK, WIN_WITH_A_BLACKJACK, YOU_WENT_OVER_YOU_LOSE, OPPONENT_WENT_OVER_YOU_WIB, YOU_WIN, YOU_LOSE] = makeEnum(7);
+
+
 
 const User = {
     // adds random features
@@ -13,7 +21,6 @@ const User = {
     // adding timeout function to return users funds in case of non participation
     informTimeout: Fun([], Null),
 }
-
 
 export const main = Reach.App(() => {
     // dealer participant is able to wager, draw cards, see outcome, and inform timeout
@@ -157,6 +164,8 @@ export const main = Reach.App(() => {
     // ending the consensus step
     commit();
 
+
+
     // [9] both players are shown the outcome
     Player.only(() => {
         interact.seeOutcome(messagePlayer);
@@ -167,4 +176,3 @@ export const main = Reach.App(() => {
     });
 
 });
-
