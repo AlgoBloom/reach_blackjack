@@ -152,7 +152,8 @@ export const main = Reach.App(() => {
         loopOutcome == 56 ? forDealer == 2 && forPlayer == 0 :
         forDealer == 1 && forPlayer == 1
         );
-
+    // asseting that outcome can not be a draw
+    assert(loopOutcome !== 00);    
     // [8] stakes are paid
     transfer(forPlayer * wager).to(Player);
     transfer(forDealer * wager).to(Dealer);
