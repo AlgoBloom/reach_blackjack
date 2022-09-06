@@ -143,7 +143,7 @@ export const main = Reach.App(() => {
     Dealer.publish(forDealer, forPlayer);
 
     // asserting that the share for player is correct
-    assert(loopOutcome == 00 ? forPlayer == 1 : 
+    require(loopOutcome == 00 ? forPlayer == 1 : 
         loopOutcome == 21 ? forPlayer == 0 :
         loopOutcome == 12 ? forPlayer == 2 :
         loopOutcome == 43 ? forPlayer == 0 :
@@ -154,7 +154,7 @@ export const main = Reach.App(() => {
         );
 
     // asserting that the share for dealer is correct
-    assert(loopOutcome == 00 ? forDealer == 1 : 
+    require(loopOutcome == 00 ? forDealer == 1 : 
         loopOutcome == 21 ? forDealer == 2 :
         loopOutcome == 12 ? forDealer == 0 :
         loopOutcome == 43 ? forDealer == 2 :
@@ -168,7 +168,11 @@ export const main = Reach.App(() => {
     transfer(forPlayer * wager).to(Player);
     transfer(forDealer * wager).to(Dealer);
 
+    // balance should be zero at this point
+    require(balance() == 0);
+
     commit();
+
 
     // player determines which message each particpant should be shown
     // this essentially destructures the loopOutcome to tell us which message to display for each participant 
