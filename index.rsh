@@ -111,7 +111,7 @@ export const main = Reach.App(() => {
         Player.publish(outcome);
 
         // requiring that the balance is still 2 wagers
-        assert(balance() == 2 * wager);
+        require(balance() == 2 * wager);
 
         // this is for the while loop
         loopOutcome = outcome;
@@ -142,7 +142,7 @@ export const main = Reach.App(() => {
     // dealer publishes the shares alloted for dealer and player
     Dealer.publish(forDealer, forPlayer);
 
-    // asserting that the share for player is correct
+    // requiring that the share for player is correct
     require(loopOutcome == 00 ? forPlayer == 1 : 
         loopOutcome == 21 ? forPlayer == 0 :
         loopOutcome == 12 ? forPlayer == 2 :
@@ -153,7 +153,7 @@ export const main = Reach.App(() => {
         forPlayer == 1
         );
 
-    // asserting that the share for dealer is correct
+    // requiring that the share for dealer is correct
     require(loopOutcome == 00 ? forDealer == 1 : 
         loopOutcome == 21 ? forDealer == 2 :
         loopOutcome == 12 ? forDealer == 0 :
