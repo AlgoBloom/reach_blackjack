@@ -118,7 +118,7 @@ export const main = Reach.App(() => {
         continue;
     }
     commit();
-    
+
     // [7] dealer computes and shares number of stakes won for dealer and player
     Dealer.only(() => {
         const [forDealer, forPlayer] =
@@ -141,6 +141,28 @@ export const main = Reach.App(() => {
     });
     // dealer publishes the shares alloted for dealer and player
     Dealer.publish(forDealer, forPlayer);
+
+    // asserting that the share for player is correct
+    assert(loopOutcome == 00 ? forPlayer == 1 : 
+        loopOutcome == 21 ? forPlayer == 0 :
+        loopOutcome == 12 ? forPlayer == 2 :
+        loopOutcome == 43 ? forPlayer == 0 :
+        loopOutcome == 34 ? forPlayer == 2 :
+        loopOutcome == 65 ? forPlayer == 2 :
+        loopOutcome == 56 ? forPlayer == 0 :
+        forPlayer == 1
+        );
+
+    // asserting that the share for dealer is correct
+    assert(loopOutcome == 00 ? forDealer == 1 : 
+        loopOutcome == 21 ? forDealer == 2 :
+        loopOutcome == 12 ? forDealer == 0 :
+        loopOutcome == 43 ? forDealer == 2 :
+        loopOutcome == 34 ? forDealer == 0 :
+        loopOutcome == 65 ? forDealer == 0 :
+        loopOutcome == 56 ? forDealer == 2 :
+        forDealer == 1
+        );
 
     // [8] stakes are paid
     transfer(forPlayer * wager).to(Player);
