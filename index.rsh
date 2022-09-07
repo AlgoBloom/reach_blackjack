@@ -1,8 +1,8 @@
 // theorems failing
 // while invariant after loop
-// at ./index.rsh:68:15:invariant
+// at ./index.rsh:69:15:invariant
 // while invariant after loop
-// at ./index.rsh:68:15:invariant
+// at ./index.rsh:69:15:invariant
 
 'reach 0.1';
 
@@ -154,7 +154,7 @@ export const main = Reach.App(() => {
         forDealer == 1 && forPlayer == 1
         );
     // asseting that outcome can not be a draw
-    assert(loopOutcome !== 00);    
+
     // [8] stakes are paid
     transfer(forPlayer * wager).to(Player);
     transfer(forDealer * wager).to(Dealer);
