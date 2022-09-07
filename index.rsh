@@ -1,7 +1,8 @@
 // theorems failing
-// balance not 0 at application exit ./index.rsh:138:35:application
-// balance not sufficient for trandefer ./index.rsh:139:35:application
-// while invariant after loop ./index.rsh:69:15:invariant
+// while invariant after loop
+// at ./index.rsh:68:15:invariant
+// while invariant after loop
+// at ./index.rsh:68:15:invariant
 
 'reach 0.1';
 
@@ -143,7 +144,7 @@ export const main = Reach.App(() => {
     Dealer.publish(forDealer, forPlayer);
 
     // requiring that the share for dealer is correct
-    require(loopOutcome == 00 ? forDealer == 1 : 
+    require(loopOutcome == 00 ? forDealer == 1 && forPlayer == 1: 
         loopOutcome == 21 ? forDealer == 2 && forPlayer == 0 :
         loopOutcome == 12 ? forDealer == 0 && forPlayer == 2 :
         loopOutcome == 43 ? forDealer == 2 && forPlayer == 0 :
